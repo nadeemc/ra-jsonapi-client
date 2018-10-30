@@ -111,7 +111,7 @@ localStorage.setItem('username', 'bob');
 localStorage.setItem('password', 'secret');
 ```
 
-#### Basic auth
+#### Bearer token
 
 For authentication via (access) token your authProvider needs to store the token
 like this:
