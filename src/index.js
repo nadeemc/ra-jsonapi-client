@@ -96,7 +96,8 @@ export default (apiUrl, userSettings = {}) => (type, resource, params) => {
   return axios({ url, ...options })
     .then((response) => {
       switch (type) {
-        case GET_LIST: {
+        case GET_LIST:
+        case GET_MANY: {
           return {
             data: response.data.data.map(value => Object.assign(
               { id: value.id },
