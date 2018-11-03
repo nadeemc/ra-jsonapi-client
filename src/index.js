@@ -41,8 +41,8 @@ export default (apiUrl, userSettings = {}) => (type, resource, params) => {
       const { page, perPage } = params.pagination;
       // TODO: Allow sorting, filtering etc.
       const query = {
-        'page[number]': page,
-        'page[size]': perPage,
+        'range[0]': page * perPage,
+        'range[1]': (page + 1) * perPage,
       };
       url = `${apiUrl}/${resource}?${stringify(query)}`;
       break;
@@ -55,24 +55,14 @@ export default (apiUrl, userSettings = {}) => (type, resource, params) => {
     case CREATE:
       url = `${apiUrl}/${resource}`;
       options.method = 'POST';
-      options.data = JSON.stringify({
-        data: { type: resource, attributes: params.data },
-      });
+      options.data = JSON.stringify(params.data);
       break;
 
     case UPDATE: {
       url = `${apiUrl}/${resource}/${params.id}`;
 
-      const data = {
-        data: {
-          id: params.id,
-          type: resource,
-          attributes: params.data,
-        },
-      };
-
       options.method = 'PUT';
-      options.data = JSON.stringify(data);
+      options.data = JSON.stringify(params.data);
       break;
     }
 
@@ -83,7 +73,7 @@ export default (apiUrl, userSettings = {}) => (type, resource, params) => {
 
     case GET_MANY: {
       const query = {
-        filter: JSON.stringify({ id: params.ids }),
+        filter: JSON.stringify({ ids: params.ids }),
       };
       url = `${apiUrl}/${resource}?${stringify(query)}`;
       break;
@@ -99,42 +89,21 @@ export default (apiUrl, userSettings = {}) => (type, resource, params) => {
         case GET_LIST:
         case GET_MANY: {
           return {
-            data: response.data.data.map(value => Object.assign(
-              { id: value.id },
-              value.attributes,
-            )),
+            data: response.data.data,
             total: response.data.meta[settings.total],
           };
         }
 
         case GET_ONE: {
-          const { id, attributes } = response.data.data;
-
-          return {
-            data: {
-              id, ...attributes,
-            },
-          };
+          return response.data;
         }
 
         case CREATE: {
-          const { id, attributes } = response.data.data;
-
-          return {
-            data: {
-              id, ...attributes,
-            },
-          };
+          return response.data;
         }
 
         case UPDATE: {
-          const { id, attributes } = response.data.data;
-
-          return {
-            data: {
-              id, ...attributes,
-            },
-          };
+          return response.data;
         }
 
         case DELETE: {
